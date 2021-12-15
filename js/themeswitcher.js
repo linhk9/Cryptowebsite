@@ -4,7 +4,7 @@ const LOCAL_STORAGE_KEY = "toggle-bootstrap-theme";
 const LOCAL_META_DATA = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 
 // you can change this url as needed
-const DARK_THEME_PATH = "./css/bootstrap-dark.min.css";
+const DARK_THEME_PATH = "./css/mdb.dark.min.css";
 
 const DARK_STYLE_LINK = document.getElementById("dark-theme-style");
 const THEME_TOGGLER = document.getElementById("theme-toggler");

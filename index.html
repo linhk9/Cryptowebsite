@@ -5,23 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
-    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/mdb.min.css" rel="stylesheet">
     <link href="./css/main.css" rel="stylesheet">
 
     <link id="dark-theme-style" rel="stylesheet" />
     
-    <title>Projeto PWC - CriptoMoedas</title>
+    <title>CryptoWizard</title>
   </head>
   <body>
     <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-      <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">Projeto PWC - CriptoMoedas</a>
+      <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 text-center" href="#">CryptoWizard</a>
       <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+      <input class="form-control form-control-dark w-100" type="text" id="searchInput" onkeyup="searchBar()" placeholder="Procurar" aria-label="Procurar">
       <div class="navbar-nav">
         <div class="nav-item text-nowrap">
-          <a class="nav-link px-3" href="#">Sign out</a>
+          <a class="nav-link px-3" href="#">Sair</a>
         </div>
       </div>
     </header>
@@ -61,20 +61,20 @@
               <thead>
                 <tr>
                   <th scope="col">#</th>
-                  <th scope="col">Logo</th>
                   <th scope="col">Nome</th>
                   <th scope="col">Preço Atual</th>
                   <th scope="col">Market Cap</th>
+                  <th scope="col">Favoritos</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
+              <tbody id="cryptoList">
+                <!-- <tr>
                   <td>1,001</td>
                   <td>random</td>
                   <td>data</td>
                   <td>placeholder</td>
                   <td>text</td>
-                </tr>
+                </tr> -->
               </tbody>
             </table>
           </div>
