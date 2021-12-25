@@ -72,7 +72,7 @@ $(function() {
           let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
           let isFavorite = localStorageData;
 
-          if (isFavorite) { $(this).html('<i class="fas fa-star"></i>') }
+          if (isFavorite) { $(this).html('<span style="font-size: 1em; color: #DBA800;"><i class="fas fa-star"></i></span>') }
 
           $(this).click(function(event) {
             event.preventDefault();
