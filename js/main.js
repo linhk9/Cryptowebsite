@@ -84,7 +84,7 @@ $(function() {
               $(this).html('<i class="far fa-star"></i>');
             } else {
               localStorage.setItem(localStorageFavKey, true);
-              $(this).html('<i class="fas fa-star"></i>');
+              $(this).html('<span style="font-size: 1em; color: #DBA800;"><i class="fas fa-star"></i></span>');
             }
           });
         });
