@@ -96,7 +96,7 @@ $(function() {
           $(this).click(function(evento) {
             evento.preventDefault();
             const moeda = $(this).attr('id').split('_')[1];
-            history.pushState({}, null, url + '?detalhes='+moeda);
+            location.href = url + '?detalhes='+moeda;
             $('#conteudo_principal').hide();
             $('#detalhes_'+moeda).show();
           });
@@ -106,12 +106,12 @@ $(function() {
           if (evento.key === 'Enter') {
             const moeda = $('#searchInput').val().toLowerCase();
             if ($('#detalhes_'+moeda).length) {
-              history.pushState({}, null, url + '?detalhes='+moeda);
+              location.href = url + '?detalhes='+moeda;
               $('#conteudo_principal').hide();
               $('#detalhes_'+moeda).show();
               currentPage = 'detalhes_'+moeda;
             } else if (moeda == '') {
-              history.pushState({}, null, url);
+              location.href = url;
               $('#'+currentPage).hide();
               $('#conteudo_principal').show();
             }
