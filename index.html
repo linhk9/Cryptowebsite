@@ -20,7 +20,7 @@
       <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <input class="form-control form-control-dark w-100" type="text" id="searchInput" onkeyup="searchBar()" placeholder="Procurar" aria-label="Procurar"/>
+      <input class="form-control form-control-dark w-100" type="text" id="searchInput" onkeyup="barraDePesquisa()" placeholder="Procurar" aria-label="Procurar"/>
       <div class="navbar-nav">
         <div class="nav-item text-nowrap">
           <a class="nav-link px-3" href="#">Login</a>
@@ -30,23 +30,23 @@
 
     <div class="container-fluid">
       <div class="row">
-        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" >
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse" >
           <div class="position-sticky pt-3">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">
+                <a class="nav-link" href="./index.html">
                   <i class="fas fa-home"></i>
                   Início
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="?favoritos=true">
                   <i class="far fa-star"></i>
                   Favoritos
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="?definicoes=true">
                   <i class="fas fa-cogs"></i>
                   Definições
                 </a>
@@ -55,8 +55,50 @@
           </div>
         </nav>
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-          <div id="bitcoin" class="detalhes-conteudo"><h2>Teste Bitcoin</h2></div>
+        <main id="paginas" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">          
+          <div id="favoritos" class="detalhes-conteudo">
+            <h2>Teste Favoritos</h2>
+          </div>
+          <div id="definicoes" class="detalhes-conteudo">
+            <h2>Definições (Acabar Moeda, Limite de Moedas e botão Guardar)</h2>
+            <form>
+              <div class="form-group row mt-5">
+                <label for="limiteMoedas" class="col-sm-2"><h5>Moeda</h5></label>
+                <div class="col-md-10">
+                  <select id="limiteMoedas" class="form-control">
+                    <option selected value="eur">Euro</option>
+                    <option value="usd">USD</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row mt-2">
+                <label for="limiteMoedas" class="col-sm-2"><h5>Limite de Moedas</h3></label>
+                <div class="col-md-10">
+                  <select id="limiteMoedas" class="form-control">
+                    <option selected value="100">100</option>
+                    <option value="10">10</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row mt-2">
+                <label id="theme-toggler" class="col-sm-2"><h5>Tema</h5></label>
+                <div class="col-sm-10">
+                  <!-- Light/Dark Mode Switch -->
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="theme-toggler-input" title="Alternar Tema" onclick="toggleTheme()">
+                  </div>
+                </div>
+              </div>
+              
+              </fieldset>
+              
+              <div class="form-group row mt-3">
+                <div class="col-sm-10">
+                  <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+              </div>
+            </form>
+          </div>
 
           <div id="conteudo_principal">
             <h2>Cripto Moedas</h2>
@@ -88,12 +130,6 @@
           
         </main>
       </div>
-    </div>
-
-    <!-- Light/Dark Mode Switch -->
-    <div class="form-check form-switch">
-      <label class="form-check-label" id="theme-toggler"></label>
-      <input class="form-check-input" type="checkbox" id="theme-toggler-input" title="Alternar Tema" onclick="toggleTheme()">
     </div>
 
     <script src="./js/bootstrap.bundle.min.js"></script>

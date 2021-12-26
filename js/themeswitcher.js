@@ -36,12 +36,12 @@ function toggleTheme() {
 
 function enableDarkTheme() {
   DARK_STYLE_LINK.setAttribute("href", DARK_THEME_PATH);
-  THEME_TOGGLER.innerHTML = "🌙";
+  THEME_TOGGLER.innerHTML = "<h5>Tema: 🌙</h5>";
   THEME_TOGGLER_INPUT.checked = true;
 }
 
 function disableDarkTheme() {
   DARK_STYLE_LINK.setAttribute("href", "");
-  THEME_TOGGLER.innerHTML = "🌞";
+  THEME_TOGGLER.innerHTML = "<h5>Tema: 🌞</h5>";
   THEME_TOGGLER_INPUT.checked = false;
 }

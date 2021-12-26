@@ -1,29 +1,14 @@
-const moeda = "eur";
-const limiteLista = 100;
-
-const formatter = new Intl.NumberFormat('pt-PT', {
-  style: 'currency',
-  currency: moeda.toUpperCase(),
-
-  //These options are needed to round to whole numbers if that's what you want.
-  //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-  maximumFractionDigits: 2, // (causes 2500.99 to be printed as $2,501)
-});
-
-function searchBar() {
+function barraDePesquisa() {
   // Declarar variaveis
-  var input, filter, table, tr, td, i, txtValue;
-  input = document.getElementById("searchInput");
-  filter = input.value.toUpperCase();
-  table = document.getElementById("cryptoList");
-  tr = table.getElementsByTagName("tr");
+  let td, txtValue;
+  let tr = $('#cryptoList').find('tr')
 
   // Loop through all table rows, and hide those who don't match the search query
-  for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[1];
+  for (let i = 0; i < tr.length; i++) {
+    td = $(tr[i]).find('td')[1];
     if (td) {
       txtValue = td.textContent || td.innerText;
-      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+      if (txtValue.toUpperCase().indexOf($('#searchInput').val().toUpperCase()) > -1) {
         tr[i].style.display = "";
       } else {
         tr[i].style.display = "none";
@@ -44,25 +29,42 @@ function obterLink(name, url) {
 }
 
 $(function() {
+  const moeda = "eur";
+  const limiteLista = 100;
+  const url = location.origin + location.pathname;
+  let currentPage = 'conteudo_principal';
+
+  const formatador = new Intl.NumberFormat('pt-PT', {
+    style: 'currency',
+    currency: moeda.toUpperCase(),
+  
+    //These options are needed to round to whole numbers if that's what you want.
+    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+    maximumFractionDigits: 2, // (causes 2500.99 to be printed as $2,501)
+  });
+  
   $.ajax({
       method: 'GET',
       url: "https://api.coingecko.com/api/v3/coins/markets?vs_currency="+moeda+"&order=market_cap_desc&per_page="+limiteLista+"&page=1&sparkline=false",
-      success: function(response) {
+      success: function(resposta) {
         let tabela = $('#cryptoList');
         let tr = "";
 
         tabela.html("");
 
-        response.forEach(function(element, index, arr) {
-            // console.log(element);
+        resposta.forEach(function(elem, i, arr) {
+            // console.log(elem);
             tr+='<tr>';
-            tr+='<td>'+(index+1)+'</td>'+
-            '<td><img src="'+element.image+'" style="width: 18px; height: 18px;" alt="Logo"> '+element.name+'</td>'+
-            '<td>'+formatter.format(element.current_price)+'</td>'+
-            '<td>'+formatter.format(element.market_cap)+'</td>'+
-            '<td><div id="fav_'+element.index+'"><i class="far fa-star"></i></div></td>'+
-            '<td><div id="detalhes_'+element.id+'"><i class="fas fa-plus"></i></div></td>'
-            tr+='</tr>'
+            tr+='<td>'+(i+1)+'</td>'+
+            '<td><img src="'+elem.image+'" style="width: 18px; height: 18px;" alt="Logo"> '+elem.name+'</td>'+
+            '<td>'+formatador.format(elem.current_price)+'</td>'+
+            '<td>'+formatador.format(elem.market_cap)+'</td>'+
+            '<td><div id="fav_'+elem.index+'"><i class="far fa-star"></i></div></td>'+
+            '<td><div id="btnDetalhes_'+elem.id+'"><i class="fas fa-plus"></i></div></td>'
+            tr+='</tr>';
+
+            $('#paginas').append("<div id='detalhes_"+elem.id+"' class='detalhes-conteudo'></div>");
+            $('#detalhes_'+elem.id).html('Teste '+elem.id);
         });
 
         tabela.html(tr);
@@ -74,8 +76,9 @@ $(function() {
 
           if (isFavorite) { $(this).html('<span style="font-size: 1em; color: #DBA800;"><i class="fas fa-star"></i></span>') }
 
-          $(this).click(function(event) {
-            event.preventDefault();
+          $(this).click(function(evento) {
+            evento.preventDefault();
+
             localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
             isFavorite = localStorageData;
 
@@ -89,27 +92,50 @@ $(function() {
           });
         });
 
-        $("#searchInput").keyup(function(event) {
-          if (event.key === 'Enter') {
-              console.log('ola');
-              location.href = location.origin + location.pathname + '?moeda='+document.getElementById("searchInput").value.toLowerCase();
+        $("[id^='btnDetalhes_']").each(function(i) {          
+          $(this).click(function(evento) {
+            evento.preventDefault();
+            const moeda = $(this).attr('id').split('_')[1];
+            history.pushState({}, null, url + '?detalhes='+moeda);
+            $('#conteudo_principal').hide();
+            $('#detalhes_'+moeda).show();
+          });
+        });
+
+        $("#searchInput").keyup(function(evento) {
+          if (evento.key === 'Enter') {
+            const moeda = $('#searchInput').val().toLowerCase();
+            if ($('#detalhes_'+moeda).length) {
+              history.pushState({}, null, url + '?detalhes='+moeda);
+              $('#conteudo_principal').hide();
+              $('#detalhes_'+moeda).show();
+              currentPage = 'detalhes_'+moeda;
+            } else if (moeda == '') {
+              history.pushState({}, null, url);
+              $('#'+currentPage).hide();
+              $('#conteudo_principal').show();
+            }
           }
-      });
+        });
+
+        const detalhes = obterLink('detalhes');
+        const favoritos = obterLink('favoritos');
+        const definicoes = obterLink('definicoes');
+        if (favoritos == 'true') {
+          $('#conteudo_principal').hide();
+          $('#favoritos').show();
+        } else if (definicoes == 'true') {
+          $('#conteudo_principal').hide();
+          $('#definicoes').show();
+        } else if (detalhes && $('#detalhes_'+detalhes).length) {
+          $('#conteudo_principal').hide();
+          $('#detalhes_'+detalhes).show();
+        } else {
+          $('#conteudo_principal').show();
+        }
       },
-      error: function(response) {
-        console.log(response);
+      error: function(resposta) {
+        console.log(resposta);
       }
   });
-
-  // Obtem do link a variavel no parametro moeda | ex: index.html?moeda=bitcoin
-  // Isto é apenas um teste
-  // Quando acabar is favoritos vou passar para os detalhes e terminar o que começei aqui
-  const detalhes = obterLink('moeda');
-  if (detalhes == 'bitcoin') {
-    $('#conteudo_principal').hide();
-    $('#bitcoin').show();
-  } 
-  else {
-    $('#conteudo_principal').show();
-  }
 });
