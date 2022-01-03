@@ -64,7 +64,7 @@ $(function() {
             tr+='</tr>';
 
             $('#paginas').append("<div id='detalhes_"+elem.id+"' class='detalhes-conteudo'></div>");
-            $('#detalhes_'+elem.id).html('Teste '+elem.id);
+            $('#detalhes_'+elem.id).html('Moeda '+elem.id);
         });
 
         tabela.html(tr);
