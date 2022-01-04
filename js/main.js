@@ -29,20 +29,23 @@ function obterLink(name, url) {
 }
 
 $(function() {
-  const moeda = "eur";
-  const limiteLista = 100;
   const url = location.origin + location.pathname;
+
+  let moeda = localStorage.getItem('tipo_de_moeda') || "eur";
+  let limiteLista = localStorage.getItem('limite_de_moedas') || 100;
   let currentPage = 'conteudo_principal';
 
   const formatador = new Intl.NumberFormat('pt-PT', {
     style: 'currency',
     currency: moeda.toUpperCase(),
-  
-    //These options are needed to round to whole numbers if that's what you want.
-    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-    maximumFractionDigits: 2, // (causes 2500.99 to be printed as $2,501)
+    maximumFractionDigits: 2
   });
-  
+
+  $('#tipoMoeda').val(moeda);
+  $('#tipoMoeda').change(function() { localStorage.setItem('tipo_de_moeda', $('#tipoMoeda').val()) });
+  $('#limiteMoedas').val(limiteLista);
+  $('#limiteMoedas').change(function() { localStorage.setItem('limite_de_moedas', $('#limiteMoedas').val()) });
+
   $.ajax({
       method: 'GET',
       url: "https://api.coingecko.com/api/v3/coins/markets?vs_currency="+moeda+"&order=market_cap_desc&per_page="+limiteLista+"&page=1&sparkline=false",
@@ -53,18 +56,25 @@ $(function() {
         tabela.html("");
 
         resposta.forEach(function(elem, i, arr) {
-            // console.log(elem);
-            tr+='<tr>';
-            tr+='<td>'+(i+1)+'</td>'+
-            '<td><img src="'+elem.image+'" style="width: 18px; height: 18px;" alt="Logo"> '+elem.name+'</td>'+
-            '<td>'+formatador.format(elem.current_price)+'</td>'+
-            '<td>'+formatador.format(elem.market_cap)+'</td>'+
-            '<td><div id="fav_'+elem.index+'"><i class="far fa-star"></i></div></td>'+
-            '<td><div id="btnDetalhes_'+elem.id+'"><i class="fas fa-plus"></i></div></td>'
-            tr+='</tr>';
+          tr+='<tr>';
+          tr+='<td>'+(i+1)+'</td>'+
+          '<td><img src="'+elem.image+'" style="width: 18px; height: 18px;" alt="Logo"> '+elem.name+'</td>'+
+          '<td>'+formatador.format(elem.current_price)+'</td>'+
+          '<td>'+formatador.format(elem.market_cap)+'</td>'+
+          '<td><div id="fav_'+(i++)+'"><i class="far fa-star"></i></div></td>'+
+          '<td><div id="btnDetalhes_'+elem.id+'"><i class="fas fa-plus"></i></div></td>'
+          tr+='</tr>';
 
-            $('#paginas').append("<div id='detalhes_"+elem.id+"' class='detalhes-conteudo'></div>");
-            $('#detalhes_'+elem.id).html('Moeda '+elem.id);
+          $('#paginas').append("<div id='detalhes_"+elem.id+"' class='detalhes-conteudo'></div>");
+          $('#detalhes_'+elem.id).html(
+            '<h2 class="text-center">Moeda: '+elem.name+'</h2>'+
+            '<div class="row"><div class="col-md-8">'+
+            '<img class="text-center" src="'+elem.image+'" alt="Logo"><br><br>'+
+            '<br>Ranking: '+(i++)+
+            '<br>Valor Atual: '+formatador.format(elem.current_price)+
+            '<br>Mudança de Preço nas Últimas 24H: '+formatador.format(elem.price_change_24h)+
+            '</div></div>'
+          );
         });
 
         tabela.html(tr);
@@ -95,22 +105,22 @@ $(function() {
         $("[id^='btnDetalhes_']").each(function(i) {          
           $(this).click(function(evento) {
             evento.preventDefault();
-            const moeda = $(this).attr('id').split('_')[1];
-            location.href = url + '?detalhes='+moeda;
+            const criptoMoeda = $(this).attr('id').split('_')[1];
+            location.href = url + '?detalhes='+criptoMoeda;
             $('#conteudo_principal').hide();
-            $('#detalhes_'+moeda).show();
+            $('#detalhes_'+criptoMoeda).show();
           });
         });
 
         $("#searchInput").keyup(function(evento) {
           if (evento.key === 'Enter') {
-            const moeda = $('#searchInput').val().toLowerCase();
-            if ($('#detalhes_'+moeda).length) {
-              location.href = url + '?detalhes='+moeda;
+            const criptoMoeda = $('#searchInput').val().toLowerCase();
+            if ($('#detalhes_'+criptoMoeda).length) {
+              location.href = url + '?detalhes='+criptoMoeda;              
               $('#conteudo_principal').hide();
-              $('#detalhes_'+moeda).show();
-              currentPage = 'detalhes_'+moeda;
-            } else if (moeda == '') {
+              $('#detalhes_'+criptoMoeda).show();
+              currentPage = 'detalhes_'+criptoMoeda;
+            } else if (criptoMoeda == '') {
               location.href = url;
               $('#'+currentPage).hide();
               $('#conteudo_principal').show();
