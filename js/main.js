@@ -44,7 +44,13 @@ $(function() {
   $('#tipoMoeda').val(moeda);
   $('#tipoMoeda').change(function() { localStorage.setItem('tipo_de_moeda', $('#tipoMoeda').val()) });
   $('#limiteMoedas').val(limiteLista);
-  $('#limiteMoedas').change(function() { localStorage.setItem('limite_de_moedas', $('#limiteMoedas').val()) });
+  $('#limiteMoedas').change(function() { 
+    const limiteMoeda = $('#limiteMoedas');
+    if (limiteMoeda.val() >= 1 && limiteMoeda.val() <= 100)
+      localStorage.setItem('limite_de_moedas', limiteMoeda.val());
+    else
+      limiteMoeda.val(limiteLista);
+  });
 
   $.ajax({
       method: 'GET',
