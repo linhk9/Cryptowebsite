@@ -64,11 +64,10 @@ $(function() {
         resposta.forEach(function(elem, i, arr) {
           tr+='<tr>';
           tr+='<td>'+(i+1)+'</td>'+
-          '<td><img src="'+elem.image+'" style="width: 18px; height: 18px;" alt="Logo"> '+elem.name+'</td>'+
+          '<td><img src="'+elem.image+'" style="width: 33px; height: 33px;" alt="Logo"><button class="btn btn-link" id="btnDetalhes_'+elem.id+'"> '+elem.name+'</button></td>'+
           '<td>'+formatador.format(elem.current_price)+'</td>'+
           '<td>'+formatador.format(elem.market_cap)+'</td>'+
-          '<td><div id="fav_'+(i++)+'"><i class="far fa-star"></i></div></td>'+
-          '<td><div id="btnDetalhes_'+elem.id+'"><i class="fas fa-plus"></i></div></td>'
+          '<td><div id="fav_'+(i++)+'"><i class="far fa-star"></i></div></td>'
           tr+='</tr>';
 
           $('#paginas').append("<div id='detalhes_"+elem.id+"' class='detalhes-conteudo'></div>");
