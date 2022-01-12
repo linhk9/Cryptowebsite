@@ -6,9 +6,9 @@ const LOCAL_META_DATA = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 // you can change this url as needed
 const DARK_THEME_PATH = "./css/mdb.dark.min.css";
 
-const DARK_STYLE_LINK = document.getElementById("dark-theme-style");
-const THEME_TOGGLER = document.getElementById("theme-toggler");
-const THEME_TOGGLER_INPUT = document.getElementById("theme-toggler-input");
+const DARK_STYLE_LINK = $("#dark-theme-style");
+const THEME_TOGGLER = $("#theme-toggler");
+const THEME_TOGGLER_INPUT = $("#theme-toggler-input");
 
 let isDark = LOCAL_META_DATA && LOCAL_META_DATA.isDark;
 
@@ -35,13 +35,13 @@ function toggleTheme() {
 }
 
 function enableDarkTheme() {
-  DARK_STYLE_LINK.setAttribute("href", DARK_THEME_PATH);
+  DARK_STYLE_LINK.attr("href", DARK_THEME_PATH);
   THEME_TOGGLER.innerHTML = "<h5>Tema: 🌙</h5>";
   THEME_TOGGLER_INPUT.checked = true;
 }
 
 function disableDarkTheme() {
-  DARK_STYLE_LINK.setAttribute("href", "");
+  DARK_STYLE_LINK.attr("href", "");
   THEME_TOGGLER.innerHTML = "<h5>Tema: 🌞</h5>";
   THEME_TOGGLER_INPUT.checked = false;
 }

@@ -1,7 +1,10 @@
 function barraDePesquisa() {
   // Declarar variaveis
+  const favoritos = obterLink('favoritos');
   let td, txtValue;
-  let tr = $('#cryptoList').find('tr')
+  let lista = $('#cryptoList');
+  if (favoritos == 'true') lista = $('#cryptoListFavoritos')
+  let tr = lista.find('tr');
 
   // Loop through all table rows, and hide those who don't match the search query
   for (let i = 0; i < tr.length; i++) {
@@ -56,26 +59,38 @@ $(function() {
       method: 'GET',
       url: "https://api.coingecko.com/api/v3/coins/markets?vs_currency="+moeda+"&order=market_cap_desc&per_page="+limiteLista+"&page=1&sparkline=false",
       success: function(resposta) {
-        let tabela = $('#cryptoList');
+        const pagDetalhes = obterLink('detalhes');
+        const pagFavoritos = obterLink('favoritos');
+        const pagDefinicoes = obterLink('definicoes');
+
+        let lista = $('#cryptoList');
+        if (pagFavoritos == 'true') lista = $('#cryptoListFavoritos')
+        let tabela = lista;
         let tr = "";
 
         tabela.html("");
 
         resposta.forEach(function(elem, i, arr) {
-          tr+='<tr>';
-          tr+='<td>'+(i+1)+'</td>'+
-          '<td><img src="'+elem.image+'" style="width: 18px; height: 18px;" alt="Logo"> <a type="button" id="btnDetalhes_'+elem.id+'"> '+elem.name+'</a></td>'+
-          '<td>'+formatador.format(elem.current_price)+'</td>'+
-          '<td>'+formatador.format(elem.market_cap)+'</td>'+
-          '<td><div id="fav_'+(i++)+'"><i class="far fa-star"></i></div></td>'
-          tr+='</tr>';
+          const localStorageFavKey = 'fav_'+i;
+          let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
+          let isFavorite = localStorageData;
+          if (pagFavoritos == 'true' && isFavorite || !pagFavoritos) {
+            tr+='<tr id="tr_'+i+'">'+
+            '<td>'+(i+1)+'</td>'+
+            '<td><img src="'+elem.image+'" style="width: 18px; height: 18px;" alt="Logo"> <a type="button" id="btnDetalhes_'+elem.id+'"> '+elem.name+'</a></td>'+
+            '<td>'+formatador.format(elem.current_price)+'</td>'+
+            '<td>'+formatador.format(elem.market_cap)+'</td>'+
+            '<td><div id="fav_'+i+'"><i class="far fa-star"></i></div></td>'+
+            '</tr>';
+          }
 
           $('#paginas').append("<div id='detalhes_"+elem.id+"' class='detalhes-conteudo'></div>");
           $('#detalhes_'+elem.id).html(
             '<h2 class="text-center">Moeda: '+elem.name+'</h2>'+
             '<div class="row"><div class="col-md-8">'+
             '<img class="text-center" src="'+elem.image+'" alt="Logo"><br><br>'+
-            '<br>Ranking: '+(i++)+
+            '<br><div id="favDetalhes_'+i+'">Favoritos: <i class="far fa-star"></i></div>'+
+            'Ranking: '+(i+1)+
             '<br>Valor Atual: '+formatador.format(elem.current_price)+
             '<br>Mudança de Preço nas Últimas 24H: '+formatador.format(elem.price_change_24h)+
             '</div></div>'
@@ -85,10 +100,9 @@ $(function() {
         tabela.html(tr);
 
         $("[id^='fav_']").each(function(index) {
-          const localStorageFavKey = 'fav_'+index;
+          const localStorageFavKey = this.id;
           let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
           let isFavorite = localStorageData;
-
           if (isFavorite) { $(this).html('<span style="font-size: 1em; color: #DBA800;"><i class="fas fa-star"></i></span>') }
 
           $(this).click(function(evento) {
@@ -100,9 +114,36 @@ $(function() {
             if (isFavorite) {
               localStorage.setItem(localStorageFavKey, false);
               $(this).html('<i class="far fa-star"></i>');
+
+              if (pagFavoritos == 'true') {
+                $('#tr_'+this.id.split('_')[1]).fadeOut();
+              }
             } else {
               localStorage.setItem(localStorageFavKey, true);
               $(this).html('<span style="font-size: 1em; color: #DBA800;"><i class="fas fa-star"></i></span>');
+            }
+          });
+        });
+      
+        $("[id^='favDetalhes_']").each(function(index) {
+          const localStorageFavKey = 'fav_'+this.id.split('_')[1];
+          let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
+          let isFavorite = localStorageData;
+
+          if (isFavorite) { $(this).html('Favoritos: <span style="font-size: 1em; color: #DBA800;"><i class="fas fa-star"></i></span>') }
+
+          $(this).click(function(evento) {
+            evento.preventDefault();
+
+            localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
+            isFavorite = localStorageData;
+
+            if (isFavorite) {
+              localStorage.setItem(localStorageFavKey, false);
+              $(this).html('Favoritos: <i class="far fa-star"></i>');
+            } else {
+              localStorage.setItem(localStorageFavKey, true);
+              $(this).html('Favoritos: <span style="font-size: 1em; color: #DBA800;"><i class="fas fa-star"></i></span>');
             }
           });
         });
@@ -110,6 +151,7 @@ $(function() {
         $("[id^='btnDetalhes_']").each(function(i) {          
           $(this).click(function(evento) {
             evento.preventDefault();
+
             const criptoMoeda = $(this).attr('id').split('_')[1];
             location.href = url + '?detalhes='+criptoMoeda;
             $('#conteudo_principal').hide();
@@ -133,18 +175,15 @@ $(function() {
           }
         });
 
-        const detalhes = obterLink('detalhes');
-        const favoritos = obterLink('favoritos');
-        const definicoes = obterLink('definicoes');
-        if (favoritos == 'true') {
+        if (pagFavoritos == 'true') {
           $('#conteudo_principal').hide();
           $('#favoritos').show();
-        } else if (definicoes == 'true') {
+        } else if (pagDefinicoes == 'true') {
           $('#conteudo_principal').hide();
           $('#definicoes').show();
-        } else if (detalhes && $('#detalhes_'+detalhes).length) {
+        } else if (pagDetalhes && $('#detalhes_'+pagDetalhes).length) {
           $('#conteudo_principal').hide();
-          $('#detalhes_'+detalhes).show();
+          $('#detalhes_'+pagDetalhes).show();
         } else {
           $('#conteudo_principal').show();
         }
