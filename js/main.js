@@ -1,3 +1,4 @@
+//função para a barra de pesquisa
 function barraDePesquisa() {
   // Declarar variaveis
   const favoritos = obterLink('favoritos');
@@ -20,7 +21,7 @@ function barraDePesquisa() {
   }
 }
 
-// Parse the URL parameter
+// Esta função serve para obter informação do url e retornar o valor obtido
 function obterLink(name, url) {
   if (!url) url = window.location.href;
   name = name.replace(/[\[\]]/g, "\\$&");
@@ -34,10 +35,12 @@ function obterLink(name, url) {
 $(function() {
   const url = location.origin + location.pathname;
 
+  // definir o tipo e moeda e o limite da lista se o utilzador nao a mudou
   let moeda = localStorage.getItem('tipo_de_moeda') || "eur";
   let limiteLista = localStorage.getItem('limite_de_moedas') || 100;
   let currentPage = 'conteudo_principal';
 
+  // formatar o número para moeda
   const formatador = new Intl.NumberFormat('pt-PT', {
     style: 'currency',
     currency: moeda.toUpperCase(),
@@ -55,6 +58,7 @@ $(function() {
       limiteMoeda.val(limiteLista);
   });
 
+  //obtem informação da API da Coingecko
   $.ajax({
       method: 'GET',
       url: "https://api.coingecko.com/api/v3/coins/markets?vs_currency="+moeda+"&order=market_cap_desc&per_page="+limiteLista+"&page=1&sparkline=false",
@@ -83,7 +87,8 @@ $(function() {
             '<td><div id="fav_'+i+'"><i class="far fa-star"></i></div></td>'+
             '</tr>';
           }
-
+          
+          //informação fornecida pela API que é metida nos detalhes
           $('#paginas').append("<div id='detalhes_"+elem.id+"' class='detalhes-conteudo'></div>");
           $('#detalhes_'+elem.id).html(
             '<h2 class="text-center">Moeda: '+elem.name+'</h2>'+
@@ -99,6 +104,7 @@ $(function() {
 
         tabela.html(tr);
 
+        //adiciona ou retira a moeda dos favoritos e muda o icon de favoritos no principal
         $("[id^='fav_']").each(function(index) {
           const localStorageFavKey = this.id;
           let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
@@ -125,6 +131,7 @@ $(function() {
           });
         });
       
+        //verifica se a moeda está na lista de favoritos ou não e muda a o icon dos favoritos nos detalhes
         $("[id^='favDetalhes_']").each(function(index) {
           const localStorageFavKey = 'fav_'+this.id.split('_')[1];
           let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
@@ -148,6 +155,7 @@ $(function() {
           });
         });
 
+        //mostra a página detalhes da criptomoeda clicada
         $("[id^='btnDetalhes_']").each(function(i) {          
           $(this).click(function(evento) {
             evento.preventDefault();
@@ -159,6 +167,7 @@ $(function() {
           });
         });
 
+        //searchbar quando se clica "enter"
         $("#searchInput").keyup(function(evento) {
           if (evento.key === 'Enter') {
             const criptoMoeda = $('#searchInput').val().toLowerCase();
@@ -175,6 +184,7 @@ $(function() {
           }
         });
 
+        //esconde e mostra a página indicada quando a informação do url é igual a do código
         if (pagFavoritos == 'true') {
           $('#conteudo_principal').hide();
           $('#favoritos').show();
@@ -188,6 +198,8 @@ $(function() {
           $('#conteudo_principal').show();
         }
       },
+      
+      //se a API não disponibilizar informação
       error: function(resposta) {
         console.log(resposta);
       }
