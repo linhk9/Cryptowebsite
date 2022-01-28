@@ -7,7 +7,7 @@ function barraDePesquisa() {
   if (favoritos == 'true') lista = $('#cryptoListFavoritos')
   let tr = lista.find('tr');
 
-  // Loop through all table rows, and hide those who don't match the search query
+  // loop por todas as linhas da tabela e esconder aquelas que não correspondem à consulta da pesquisa
   for (let i = 0; i < tr.length; i++) {
     td = $(tr[i]).find('td')[1];
     if (td) {
@@ -33,11 +33,14 @@ function obterLink(name, url) {
 }
 
 $(function() {
+  // definir variavel com o url atual
   const url = location.origin + location.pathname;
 
-  // definir o tipo e moeda e o limite da lista se o utilzador nao a mudou
+  // definir variaveis com os valores do localstorage se existirem
+  let toggleExtra = JSON.parse(localStorage.getItem('toggle_extra')) || false;
   let moeda = localStorage.getItem('tipo_de_moeda') || "eur";
   let limiteLista = localStorage.getItem('limite_de_moedas') || 100;
+  // definir a página atual
   let currentPage = 'conteudo_principal';
 
   // formatar o número para moeda
@@ -47,15 +50,17 @@ $(function() {
     maximumFractionDigits: 2
   });
 
-  $('#tipoMoeda').val(moeda);
-  $('#tipoMoeda').change(function() { localStorage.setItem('tipo_de_moeda', $('#tipoMoeda').val()) });
-  $('#limiteMoedas').val(limiteLista);
-  $('#limiteMoedas').change(function() { 
-    const limiteMoeda = $('#limiteMoedas');
-    if (limiteMoeda.val() >= 1 && limiteMoeda.val() <= 100)
-      localStorage.setItem('limite_de_moedas', limiteMoeda.val());
-    else
-      limiteMoeda.val(limiteLista);
+  // Ativar/Desativar o extra
+  $('#extra-toggler-input').prop("checked", toggleExtra);
+  $('#extra-toggler-input').click(function() {
+    toggleExtra = !toggleExtra;
+
+    moeda = moeda == 'eur' ? 'usd' : 'eur';
+    limiteLista = limiteLista == 100 ? 10 : 100;
+
+    localStorage.setItem('tipo_de_moeda', moeda);
+    localStorage.setItem('limite_de_moedas', limiteLista);
+    localStorage.setItem('toggle_extra', toggleExtra);
   });
 
   //obtem informação da API da Coingecko
@@ -63,21 +68,26 @@ $(function() {
       method: 'GET',
       url: "https://api.coingecko.com/api/v3/coins/markets?vs_currency="+moeda+"&order=market_cap_desc&per_page="+limiteLista+"&page=1&sparkline=false",
       success: function(resposta) {
+        // definição de variaveis
         const pagDetalhes = obterLink('detalhes');
         const pagFavoritos = obterLink('favoritos');
         const pagDefinicoes = obterLink('definicoes');
 
-        let lista = $('#cryptoList');
-        if (pagFavoritos == 'true') lista = $('#cryptoListFavoritos')
-        let tabela = lista;
+        // definir a lista/tabela a usar
+        let tabela = $('#cryptoList');
+        if (pagFavoritos == 'true') tabela = $('#cryptoListFavoritos')
         let tr = "";
 
+        // limpar tabela
         tabela.html("");
 
+        // loop por todos os valores obtidos na API
         resposta.forEach(function(elem, i, arr) {
+          // definição variaveis
           const localStorageFavKey = 'fav_'+i;
           let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
           let isFavorite = localStorageData;
+          // criação da lista das merdas
           if (pagFavoritos == 'true' && isFavorite || !pagFavoritos) {
             tr+='<tr id="tr_'+i+'">'+
             '<td>'+(i+1)+'</td>'+
@@ -102,9 +112,10 @@ $(function() {
           );
         });
 
+        // enviar a tabela para o html
         tabela.html(tr);
 
-        //adiciona ou retira a moeda dos favoritos e muda o icon de favoritos no principal
+        // adicionar ou retirar a moeda dos favoritos e mudar o icon de favoritos na página principal
         $("[id^='fav_']").each(function(index) {
           const localStorageFavKey = this.id;
           let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
@@ -131,7 +142,7 @@ $(function() {
           });
         });
       
-        //verifica se a moeda está na lista de favoritos ou não e muda a o icon dos favoritos nos detalhes
+        // adicionar ou retirar a moeda dos favoritos e mudar o icon de favoritos na página de detalhes
         $("[id^='favDetalhes_']").each(function(index) {
           const localStorageFavKey = 'fav_'+this.id.split('_')[1];
           let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
@@ -155,7 +166,7 @@ $(function() {
           });
         });
 
-        //mostra a página detalhes da criptomoeda clicada
+        // mostrar a página detalhes da criptomoeda clicada
         $("[id^='btnDetalhes_']").each(function(i) {          
           $(this).click(function(evento) {
             evento.preventDefault();
@@ -167,7 +178,7 @@ $(function() {
           });
         });
 
-        //searchbar quando se clica "enter"
+        // Ao clicar ENTER ir para os detalhes da moeda ou sair dos detalhes
         $("#searchInput").keyup(function(evento) {
           if (evento.key === 'Enter') {
             const criptoMoeda = $('#searchInput').val().toLowerCase();
@@ -184,7 +195,7 @@ $(function() {
           }
         });
 
-        //esconde e mostra a página indicada quando a informação do url é igual a do código
+        // esconder ou mostrar a página indicada quando a informação do url é igual a do código
         if (pagFavoritos == 'true') {
           $('#conteudo_principal').hide();
           $('#favoritos').show();
@@ -199,7 +210,7 @@ $(function() {
         }
       },
       
-      //se a API não disponibilizar informação
+      // se a API não disponibilizar informação mostrar erro
       error: function(resposta) {
         console.log(resposta);
       }

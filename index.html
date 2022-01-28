@@ -72,22 +72,13 @@
           
           <div id="definicoes" class="detalhes-conteudo">
             <h2 class="text-center">Definições</h2>
-              <div class="form-group row mt-5">
-                <label for="tipoMoeda" class="col-sm-2"><h5>Moeda</h5></label>
-                <div class="col-md-10">
-                  <select id="tipoMoeda" class="form-control">
-                    <option selected value="eur">Euro</option>
-                    <option value="usd">USD</option>
-                    <option value="brl">Real Brasileiro</option>
-                    <option value="cny">Yuan</option>
-                    <option value="gbp">Libra Britânica</option>
-                  </select>
-                </div>
-              </div>
               <div class="form-group row mt-2">
-                <label for="limiteMoedas" class="col-sm-2"><h5>Limite de Moedas</h3></label>
-                <div class="col-md-10">
-                  <input id="limiteMoedas" value="100" min="1" max="100" type="number" class="form-control" aria-label="Limite de Moedas" aria-describedby="inputGroup-sizing-default">
+                <label id="extra-toggler" class="col-sm-2"><h5>Extra: </h5></label>
+                <div class="col-sm-10">
+                  <!-- Extra Switch -->
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="extra-toggler-input" title="Alternar Extra">
+                  </div>
                 </div>
               </div>
               <div class="form-group row mt-2">
