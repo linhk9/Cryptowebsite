@@ -38,8 +38,10 @@ $(function() {
 
   // definir variaveis com os valores do localstorage se existirem
   let toggleExtra = JSON.parse(localStorage.getItem('toggle_extra')) || false;
-  let moeda = localStorage.getItem('tipo_de_moeda') || "eur";
+  let order = localStorage.getItem('order') || "market_cap_desc";
+  let moeda = localStorage.getItem('tipo_de_moeda') || "usd";
   let limiteLista = localStorage.getItem('limite_de_moedas') || 100;
+  let api = "https://api.coingecko.com/api/v3/coins/markets?vs_currency="+moeda+"&order="+order+"&per_page="+limiteLista+"&page=1&sparkline=false";
   // definir a página atual
   let currentPage = 'conteudo_principal';
 
@@ -47,26 +49,31 @@ $(function() {
   const formatador = new Intl.NumberFormat('pt-PT', {
     style: 'currency',
     currency: moeda.toUpperCase(),
-    maximumFractionDigits: 2
+    maximumFractionDigits: 6,
+    minimumFractionDigits: 2
   });
 
   // Ativar/Desativar o extra
+  if (toggleExtra) { api = "https://api.coingecko.com/api/v3/coins/markets?vs_currency="+moeda+"&category=smart-contract-platform&order="+order+"&per_page="+limiteLista+"&page=1&sparkline=false" }
   $('#extra-toggler-input').prop("checked", toggleExtra);
   $('#extra-toggler-input').click(function() {
     toggleExtra = !toggleExtra;
 
-    moeda = moeda == 'eur' ? 'usd' : 'eur';
+    order = order == 'market_cap_desc' ? 'volume_desc' : 'market_cap_desc';
+    moeda = moeda == 'usd' ? 'eur' : 'usd';
     limiteLista = limiteLista == 100 ? 10 : 100;
 
     localStorage.setItem('tipo_de_moeda', moeda);
     localStorage.setItem('limite_de_moedas', limiteLista);
+    localStorage.setItem('order', order);
+
     localStorage.setItem('toggle_extra', toggleExtra);
   });
 
   //obtem informação da API da Coingecko
   $.ajax({
       method: 'GET',
-      url: "https://api.coingecko.com/api/v3/coins/markets?vs_currency="+moeda+"&order=market_cap_desc&per_page="+limiteLista+"&page=1&sparkline=false",
+      url: api,
       success: function(resposta) {
         // definição de variaveis
         const pagDetalhes = obterLink('detalhes');
@@ -83,33 +90,35 @@ $(function() {
 
         // loop por todos os valores obtidos na API
         resposta.forEach(function(elem, i, arr) {
-          // definição variaveis
-          const localStorageFavKey = 'fav_'+i;
-          let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
-          let isFavorite = localStorageData;
-          // criação da lista das merdas
-          if (pagFavoritos == 'true' && isFavorite || !pagFavoritos) {
-            tr+='<tr id="tr_'+i+'">'+
-            '<td>'+(i+1)+'</td>'+
-            '<td><img src="'+elem.image+'" style="width: 18px; height: 18px;" alt="Logo"> <a type="button" id="btnDetalhes_'+elem.id+'"> '+elem.name+'</a></td>'+
-            '<td>'+formatador.format(elem.current_price)+'</td>'+
-            '<td>'+formatador.format(elem.market_cap)+'</td>'+
-            '<td><div id="fav_'+i+'"><i class="far fa-star"></i></div></td>'+
-            '</tr>';
+          if (toggleExtra && i < 10 || !toggleExtra) {
+            // definição variaveis
+            const localStorageFavKey = 'fav_'+i;
+            let localStorageData = JSON.parse(localStorage.getItem(localStorageFavKey));
+            let isFavorite = localStorageData;
+            // criação da lista das merdas
+            if (pagFavoritos == 'true' && isFavorite || !pagFavoritos) {
+              tr+='<tr id="tr_'+i+'">'+
+              '<td>'+(i+1)+'</td>'+
+              '<td><img src="'+elem.image+'" style="width: 18px; height: 18px;" alt="Logo"> <a type="button" id="btnDetalhes_'+elem.id+'"> '+elem.name+'</a></td>'+
+              '<td>'+formatador.format(elem.current_price)+'</td>'+
+              '<td>'+formatador.format(elem.market_cap)+'</td>'+
+              '<td><div id="fav_'+i+'"><i class="far fa-star"></i></div></td>'+
+              '</tr>';
+            }
+            
+            //informação fornecida pela API que é metida nos detalhes
+            $('#paginas').append("<div id='detalhes_"+elem.id+"' class='detalhes-conteudo'></div>");
+            $('#detalhes_'+elem.id).html(
+              '<h2 class="text-center">Moeda: '+elem.name+'</h2>'+
+              '<div class="row"><div class="col-md-8">'+
+              '<img class="text-center" src="'+elem.image+'" alt="Logo"><br><br>'+
+              '<br><div id="favDetalhes_'+i+'">Favoritos: <i class="far fa-star"></i></div>'+
+              'Ranking: '+(i+1)+
+              '<br>Valor Atual: '+formatador.format(elem.current_price)+
+              '<br>Mudança de Preço nas Últimas 24H: '+formatador.format(elem.price_change_24h)+
+              '</div></div>'
+            );
           }
-          
-          //informação fornecida pela API que é metida nos detalhes
-          $('#paginas').append("<div id='detalhes_"+elem.id+"' class='detalhes-conteudo'></div>");
-          $('#detalhes_'+elem.id).html(
-            '<h2 class="text-center">Moeda: '+elem.name+'</h2>'+
-            '<div class="row"><div class="col-md-8">'+
-            '<img class="text-center" src="'+elem.image+'" alt="Logo"><br><br>'+
-            '<br><div id="favDetalhes_'+i+'">Favoritos: <i class="far fa-star"></i></div>'+
-            'Ranking: '+(i+1)+
-            '<br>Valor Atual: '+formatador.format(elem.current_price)+
-            '<br>Mudança de Preço nas Últimas 24H: '+formatador.format(elem.price_change_24h)+
-            '</div></div>'
-          );
         });
 
         // enviar a tabela para o html
